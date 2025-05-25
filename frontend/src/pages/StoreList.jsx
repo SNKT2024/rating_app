@@ -13,20 +13,19 @@ import {
   Badge,
 } from "react-bootstrap";
 import { privateApi } from "../api/axios";
-import { useAuth } from "../context/AuthContext"; // To get current user ID
-import { FaStore, FaStar, FaEdit, FaPlus, FaSearch } from "react-icons/fa"; // Icons
-import RatingModal from "../components/user/RatingModal"; // We will create this next
+import { useAuth } from "../context/AuthContext";
+import { FaStore, FaStar, FaEdit, FaPlus, FaSearch } from "react-icons/fa";
+import RatingModal from "../components/user/RatingModal";
 
 const StoresList = () => {
   const {
-    user,
     isAuthenticated,
     loading: authLoading,
     isNormalUser,
     isStoreOwner,
   } = useAuth();
-  const [stores, setStores] = useState([]); // Original fetched stores
-  const [filteredStores, setFilteredStores] = useState([]); // Stores after filtering/sorting
+  const [stores, setStores] = useState([]);
+  const [filteredStores, setFilteredStores] = useState([]);
   const [filterTerms, setFilterTerms] = useState({
     name: "",
     address: "",
@@ -36,7 +35,7 @@ const StoresList = () => {
 
   // State for Rating Modal
   const [showRatingModal, setShowRatingModal] = useState(false);
-  const [selectedStore, setSelectedStore] = useState(null); // Store object for rating modal
+  const [selectedStore, setSelectedStore] = useState(null);
 
   const fetchStores = async () => {
     if (authLoading || !isAuthenticated || (!isNormalUser && !isStoreOwner)) {
@@ -47,7 +46,6 @@ const StoresList = () => {
     try {
       setLoading(true);
       setError("");
-      // This endpoint specifically fetches overall and user's rating
       const response = await privateApi.get("/stores");
       setStores(response.data);
     } catch (err) {
@@ -65,9 +63,8 @@ const StoresList = () => {
 
   useEffect(() => {
     fetchStores();
-  }, [authLoading, isAuthenticated, isNormalUser, isStoreOwner]); // Re-fetch when auth status or role changes
+  }, [authLoading, isAuthenticated, isNormalUser, isStoreOwner]);
 
-  // --- Filtering Logic (Frontend) ---
   useEffect(() => {
     let currentStores = [...stores];
 
@@ -84,11 +81,10 @@ const StoresList = () => {
       );
     });
 
-    // Default sort by storeName for consistency, frontend sorting can be expanded later
     currentStores.sort((a, b) => a.storeName.localeCompare(b.storeName));
 
     setFilteredStores(currentStores);
-  }, [stores, filterTerms]); // Re-run whenever stores or filterTerms change
+  }, [stores, filterTerms]);
 
   // --- Filter Handlers ---
   const handleFilterChange = (e) => {
@@ -103,7 +99,6 @@ const StoresList = () => {
     });
   };
 
-  // --- Rating Modal Handlers ---
   const handleShowRatingModal = (store) => {
     setSelectedStore(store);
     setShowRatingModal(true);
@@ -111,8 +106,8 @@ const StoresList = () => {
 
   const handleHideRatingModal = () => {
     setShowRatingModal(false);
-    setSelectedStore(null); // Clear selected store
-    fetchStores(); // Refresh store list after rating submission/update
+    setSelectedStore(null);
+    fetchStores();
   };
 
   const getRatingStars = (rating) => {
@@ -151,7 +146,6 @@ const StoresList = () => {
   }
 
   if (!isAuthenticated || (!isNormalUser && !isStoreOwner)) {
-    // Ensure only normal_user or store_owner can view
     return (
       <Container className="text-center mt-5">
         <Alert variant="danger" className="shadow-sm">

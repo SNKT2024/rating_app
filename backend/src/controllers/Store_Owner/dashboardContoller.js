@@ -1,5 +1,6 @@
 const db = require("../../config/dbConfig");
 
+// Store owner dashboard
 exports.getStoreOwnerDashboard = async (req, res) => {
   const storeOwnerId = req.user.id;
 

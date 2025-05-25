@@ -7,7 +7,7 @@ const { roleAuth } = require("../middleware/roleMiddleware");
 router.use(authMiddleware);
 router.use(roleAuth(["store_owner"]));
 
-// Dashboard Route
+// Store Owner Dashboard Route
 router.get("/dashboard", storeOwnerDashboardController.getStoreOwnerDashboard);
 
 module.exports = router;

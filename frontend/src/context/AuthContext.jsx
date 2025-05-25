@@ -22,7 +22,7 @@ export const AuthProvider = ({ children }) => {
   // Function to set tokens and user info after successful login/signup
   const setAuthTokens = (accessToken, refreshToken) => {
     localStorage.setItem("accessToken", accessToken);
-    localStorage.setItem("refreshToken", refreshToken); // Store refresh token as well
+    localStorage.setItem("refreshToken", refreshToken);
     try {
       const decodedUser = jwtDecode(accessToken);
       setUser(decodedUser);
@@ -40,6 +40,7 @@ export const AuthProvider = ({ children }) => {
       if (accessToken) {
         try {
           const decodedUser = jwtDecode(accessToken);
+          console.log(decodedUser);
 
           if (decodedUser.exp * 1000 > Date.now()) {
             setUser(decodedUser);

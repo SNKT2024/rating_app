@@ -21,17 +21,16 @@ const EditStoreModal = ({ show, onHide, storeId, onStoreUpdated }) => {
     name: "",
     email: "",
     address: "",
-    owner_id: "", // Can be null or an existing store owner ID
+    owner_id: "",
   });
   const [loadingData, setLoadingData] = useState(true);
   const [loadingUpdate, setLoadingUpdate] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-  const [storeOwners, setStoreOwners] = useState([]); // State to hold possible store owners for dropdown
+  const [storeOwners, setStoreOwners] = useState([]);
   const [loadingOwners, setLoadingOwners] = useState(true);
   const [errorOwners, setErrorOwners] = useState("");
 
-  // Fetch store data when modal is shown or storeId changes
   useEffect(() => {
     const fetchStoreData = async () => {
       if (!storeId) {
@@ -50,7 +49,7 @@ const EditStoreModal = ({ show, onHide, storeId, onStoreUpdated }) => {
           name: storeData.name,
           email: storeData.email,
           address: storeData.address || "",
-          owner_id: storeData.owner_id || "", // Pre-fill owner_id, use empty string if null
+          owner_id: storeData.owner_id || "",
         });
       } catch (err) {
         console.error(
@@ -81,7 +80,6 @@ const EditStoreModal = ({ show, onHide, storeId, onStoreUpdated }) => {
     };
 
     if (show) {
-      // Only fetch data and owners when modal is actually shown
       fetchStoreData();
       fetchStoreOwners();
     }
@@ -98,7 +96,6 @@ const EditStoreModal = ({ show, onHide, storeId, onStoreUpdated }) => {
     setError("");
     setSuccess("");
 
-    // Prepare data to send: owner_id should be null if empty string
     const dataToUpdate = {
       name: formData.name,
       email: formData.email,
@@ -116,9 +113,9 @@ const EditStoreModal = ({ show, onHide, storeId, onStoreUpdated }) => {
 
       setTimeout(() => {
         if (onStoreUpdated) {
-          onStoreUpdated(); // Notify parent to refresh list and close modal
+          onStoreUpdated();
         }
-      }, 1500); // Keep success message visible for 1.5 seconds
+      }, 1500);
     } catch (err) {
       console.error("Error updating store:", err.response?.data || err.message);
       setError(

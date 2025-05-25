@@ -37,16 +37,14 @@ const CreateUserForm = ({ onUserCreated, onCancel }) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setSuccess(""); // Clear previous success on new submission attempt
+    setSuccess("");
 
     try {
       const response = await privateApi.post("/admin/users", formData);
       setSuccess(response.data.message || "User created successfully!");
 
-      // --- FIX START: Delay form reset and parent notification ---
       setTimeout(() => {
         setFormData({
-          // Reset form after successful creation
           name: "",
           email: "",
           password: "",
@@ -54,10 +52,9 @@ const CreateUserForm = ({ onUserCreated, onCancel }) => {
           role: "normal_user",
         });
         if (onUserCreated) {
-          onUserCreated(); // Callback to parent to refresh user list and potentially hide form
+          onUserCreated();
         }
-      }, 1500); // Keep success message visible for 1.5 seconds
-      // --- FIX END ---
+      }, 1000);
     } catch (err) {
       console.error("Error creating user:", err.response?.data || err.message);
       setError(
@@ -85,7 +82,6 @@ const CreateUserForm = ({ onUserCreated, onCancel }) => {
       <Card.Body>
         {error && <Alert variant="danger">{error}</Alert>}
         {success && <Alert variant="success">{success}</Alert>}{" "}
-        {/* This will now stay longer */}
         <Form onSubmit={handleSubmit}>
           <Form.Group className="mb-3">
             <Form.Label>Name</Form.Label>

@@ -4,26 +4,23 @@ import { privateApi } from "../../api/axios";
 import { FaStar, FaSave } from "react-icons/fa";
 
 const RatingModal = ({ show, onHide, store }) => {
-  // Determine if it's a new rating or an edit based on store.userSubmittedRating and store.userRatingId
   const isEditing =
     store && store.userSubmittedRating !== null && store.userRatingId !== null;
 
-  const [rating, setRating] = useState(store?.userSubmittedRating || ""); // Current rating
-  const [hoverRating, setHoverRating] = useState(0); // For hover effect on stars
+  const [rating, setRating] = useState(store?.userSubmittedRating || "");
+  const [hoverRating, setHoverRating] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Update rating state when store prop changes (e.g., modal is opened for a new store or edit)
   useEffect(() => {
     if (store) {
       setRating(store.userSubmittedRating || "");
-      setHoverRating(0); // Reset hover
+      setHoverRating(0);
       setError("");
       setSuccess("");
     }
-  }, [store, show]); // Also reset when modal is shown/hidden
-
+  }, [store, show]);
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -38,14 +35,12 @@ const RatingModal = ({ show, onHide, store }) => {
 
     try {
       if (isEditing) {
-        // Modify existing rating
         const response = await privateApi.put(
           `/ratings/${store.userRatingId}`,
           { rating }
         );
         setSuccess(response.data.message || "Rating updated successfully!");
       } else {
-        // Submit new rating
         const response = await privateApi.post("/ratings", {
           storeId: store.storeId,
           rating,
@@ -54,8 +49,8 @@ const RatingModal = ({ show, onHide, store }) => {
       }
 
       setTimeout(() => {
-        onHide(); // Close modal and trigger parent refresh
-      }, 1500); // Show success for 1.5 seconds
+        onHide();
+      }, 1000);
     } catch (err) {
       console.error(
         "Error submitting/modifying rating:",

@@ -1,4 +1,3 @@
-import React from "react";
 import { Card, Row, Col, Alert, Spinner } from "react-bootstrap";
 import { FaUsers, FaStore, FaStar } from "react-icons/fa";
 

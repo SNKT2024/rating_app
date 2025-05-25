@@ -59,7 +59,7 @@ const CreateStoreForm = ({ onStoreCreated, onCancel }) => {
     e.preventDefault();
     setLoading(true);
     setError("");
-    setSuccess(""); // Clear previous success on new submission attempt
+    setSuccess("");
 
     const dataToSend = {
       ...formData,
@@ -71,7 +71,6 @@ const CreateStoreForm = ({ onStoreCreated, onCancel }) => {
       const response = await privateApi.post("/admin/stores", dataToSend);
       setSuccess(response.data.message || "Store created successfully!");
 
-      // --- FIX START: Delay form reset and parent notification ---
       setTimeout(() => {
         setFormData({
           name: "",
@@ -80,10 +79,9 @@ const CreateStoreForm = ({ onStoreCreated, onCancel }) => {
           owner_id: "",
         });
         if (onStoreCreated) {
-          onStoreCreated(); // Callback to parent to refresh store list
+          onStoreCreated();
         }
-      }, 1500); // Keep success message visible for 1.5 seconds
-      // --- FIX END ---
+      }, 1000);
     } catch (err) {
       console.error("Error creating store:", err.response?.data || err.message);
       setError(

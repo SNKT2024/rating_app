@@ -52,7 +52,7 @@ const StoreOwnerDashboard = () => {
     };
 
     fetchDashboardData();
-  }, [authLoading, isAuthenticated, isStoreOwner]); // Re-fetch when auth status or role changes
+  }, [authLoading, isAuthenticated, isStoreOwner]);
 
   const getRatingStars = (rating) => {
     const numRating = parseFloat(rating) || 0;
@@ -152,7 +152,7 @@ const StoreOwnerDashboard = () => {
                 </Card.Body>
               </Card>
 
-              {/* Users Who Rated Your Store */}
+              {/* Users Who Rated  Store */}
               <h4 className="mb-4 text-primary">
                 <FaComments className="me-2" />
                 Ratings Received ({dashboardData.ratingsGivenByUsers.length})

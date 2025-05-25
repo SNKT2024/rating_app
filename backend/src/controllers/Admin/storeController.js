@@ -31,6 +31,7 @@ exports.addStore = async (req, res) => {
   }
 
   try {
+    // Check if exsisting store
     const [existingStore] = await db.execute(
       "SELECT id FROM stores WHERE email = ?",
       [email]
@@ -79,7 +80,6 @@ exports.addStore = async (req, res) => {
 };
 
 // get ALl Stores
-
 exports.getStores = async (req, res) => {
   try {
     const sql = `
@@ -265,7 +265,6 @@ exports.getStoreById = async (req, res) => {
   }
 
   try {
-    // SQL query to fetch store details and calculate average rating
     const [storeRows] = await db.execute(
       `SELECT
                 s.id,
@@ -277,7 +276,7 @@ exports.getStoreById = async (req, res) => {
             FROM stores s
             LEFT JOIN ratings r ON s.id = r.store_id
             WHERE s.id = ?
-            GROUP BY s.id, s.name, s.email, s.address, s.owner_id`, // Group by all non-aggregated columns
+            GROUP BY s.id, s.name, s.email, s.address, s.owner_id`,
       [storeId]
     );
 
@@ -290,7 +289,6 @@ exports.getStoreById = async (req, res) => {
       averageRating: parseFloat(storeRows[0].averageRating).toFixed(2), // Format rating
     };
 
-    // Optionally, fetch owner details if owner_id exists
     if (store.owner_id) {
       const [ownerRows] = await db.execute(
         "SELECT id, name, email FROM users WHERE id = ?",
@@ -298,7 +296,6 @@ exports.getStoreById = async (req, res) => {
       );
       if (ownerRows.length > 0) {
         store.owner = {
-          // Attach owner object
           id: ownerRows[0].id,
           name: ownerRows[0].name,
           email: ownerRows[0].email,

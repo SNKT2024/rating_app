@@ -34,7 +34,6 @@ const UserManagement = ({
   filterTerms,
   handleFilterChange,
   clearFilters,
-  sortConfig,
   requestSort,
   getSortIcon,
   onUserListRefresh,
@@ -219,7 +218,6 @@ const UserManagement = ({
             <div className="table-responsive">
               <Table className="mb-0 table-hover">
                 <thead className="table-light">
-                  {/* FIX: Ensure no whitespace between <tr> and <th> */}
                   <tr>
                     <th
                       onClick={() => requestSort("id")}
@@ -269,7 +267,6 @@ const UserManagement = ({
                 <tbody>
                   {users.length > 0 ? (
                     users.map((user) => (
-                      // FIX: Ensure no whitespace between <tr> and <td>
                       <tr key={user.id}>
                         <td className="align-middle">
                           <Badge bg="light" text="dark">

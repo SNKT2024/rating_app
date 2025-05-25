@@ -17,7 +17,6 @@ import {
   FaSortDown,
 } from "react-icons/fa";
 
-// Import the new sub-components
 import AdminStats from "../components/admin/AdminStats";
 import UserManagement from "../components/admin/UserManagement";
 import StoreManagement from "../components/admin/StoreManagement";
@@ -26,7 +25,6 @@ const AdminDashboard = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState("overview");
 
-  // --- Dashboard Stats States ---
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalStores: 0,
@@ -35,7 +33,6 @@ const AdminDashboard = () => {
   const [loadingStats, setLoadingStats] = useState(true);
   const [errorStats, setErrorStats] = useState("");
 
-  // --- User List States ---
   const [users, setUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [userFilterTerms, setUserFilterTerms] = useState({
@@ -51,7 +48,6 @@ const AdminDashboard = () => {
   const [loadingUsers, setLoadingUsers] = useState(true);
   const [errorUsers, setErrorUsers] = useState("");
 
-  // --- Store List States ---
   const [stores, setStores] = useState([]);
   const [filteredStores, setFilteredStores] = useState([]);
   const [storeFilterTerms, setStoreFilterTerms] = useState({
@@ -66,7 +62,6 @@ const AdminDashboard = () => {
   const [loadingStores, setLoadingStores] = useState(true);
   const [errorStores, setErrorStores] = useState("");
 
-  // --- Fetching Callbacks (Memoized to prevent unnecessary re-fetches) ---
   const fetchDashboardStats = useCallback(async () => {
     if (authLoading || !isAdmin) {
       setLoadingStats(false);
@@ -87,7 +82,7 @@ const AdminDashboard = () => {
     } finally {
       setLoadingStats(false);
     }
-  }, [authLoading, isAdmin]); // Dependencies for useCallback
+  }, [authLoading, isAdmin]);
 
   const fetchUsers = useCallback(async () => {
     if (authLoading || !isAdmin) {
@@ -109,7 +104,7 @@ const AdminDashboard = () => {
     } finally {
       setLoadingUsers(false);
     }
-  }, [authLoading, isAdmin]); // Dependencies for useCallback
+  }, [authLoading, isAdmin]);
 
   const fetchStores = useCallback(async () => {
     if (authLoading || !isAdmin) {
@@ -131,9 +126,8 @@ const AdminDashboard = () => {
     } finally {
       setLoadingStores(false);
     }
-  }, [authLoading, isAdmin]); // Dependencies for useCallback
+  }, [authLoading, isAdmin]);
 
-  // --- Effects to trigger fetching ---
   useEffect(() => {
     fetchDashboardStats();
   }, [fetchDashboardStats]);
@@ -146,7 +140,6 @@ const AdminDashboard = () => {
     fetchStores();
   }, [fetchStores]);
 
-  // --- Filtering and Sorting Logic for Users ---
   useEffect(() => {
     let currentUsers = [...users];
 
@@ -187,7 +180,6 @@ const AdminDashboard = () => {
     setFilteredUsers(currentUsers);
   }, [users, userFilterTerms, userSortConfig]);
 
-  // --- Filtering and Sorting Logic for Stores ---
   useEffect(() => {
     let currentStores = [...stores];
 
@@ -232,7 +224,6 @@ const AdminDashboard = () => {
     setFilteredStores(currentStores);
   }, [stores, storeFilterTerms, storeSortConfig]);
 
-  // --- Filter Handlers (Passed to Child Components) ---
   const handleUserFilterChange = (e) => {
     const { name, value } = e.target;
     setUserFilterTerms((prevTerms) => ({ ...prevTerms, [name]: value }));
@@ -243,7 +234,6 @@ const AdminDashboard = () => {
     setStoreFilterTerms((prevTerms) => ({ ...prevTerms, [name]: value }));
   };
 
-  // --- Clear Filter Handlers (Passed to Child Components) ---
   const clearUserFilters = () => {
     setUserFilterTerms({
       name: "",
@@ -261,7 +251,6 @@ const AdminDashboard = () => {
     });
   };
 
-  // --- Sorting Handlers (Passed to Child Components) ---
   const requestUserSort = (key) => {
     let direction = "asc";
     if (userSortConfig.key === key && userSortConfig.direction === "asc") {
@@ -298,7 +287,6 @@ const AdminDashboard = () => {
     return <FaSortDown className="ms-1 text-primary" />;
   };
 
-  // --- Access Control and Loading States for Main Dashboard ---
   if (authLoading) {
     return (
       <Container className="text-center mt-5">
@@ -334,7 +322,7 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Navigation Pills (Tabs) */}
+      {/* Navigation Tabs */}
       <div className="my-4">
         <ButtonGroup>
           <Button

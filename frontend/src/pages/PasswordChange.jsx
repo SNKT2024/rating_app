@@ -13,7 +13,7 @@ import { useAuth } from "../context/AuthContext"; // To get user info (optional,
 import { FaLock, FaKey, FaSyncAlt } from "react-icons/fa"; // Icons
 
 const ChangePasswordPage = () => {
-  const { user, isAuthenticated, loading: authLoading } = useAuth();
+  const { isAuthenticated, loading: authLoading } = useAuth();
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
@@ -40,9 +40,6 @@ const ChangePasswordPage = () => {
     }
 
     try {
-      // Your backend endpoint is POST /api/auth/update-password
-      // It expects oldPassword and newPassword in the body.
-      // The user ID is taken from the JWT token on the backend.
       const response = await privateApi.post("/auth/update-password", {
         oldPassword,
         newPassword,

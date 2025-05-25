@@ -22,11 +22,11 @@ import {
   FaSearch,
   FaEdit,
   FaTrash,
-} from "react-icons/fa"; // Import FaEdit, FaTrash
+} from "react-icons/fa";
 
 import CreateStoreForm from "./CreateStoreForm";
-import EditStoreModal from "./EditStoreModal"; // Import the new modal component
-import { privateApi } from "../../api/axios"; // Import privateApi for delete operation
+import EditStoreModal from "./EditStoreModal";
+import { privateApi } from "../../api/axios";
 
 const StoreManagement = ({
   stores,
@@ -35,14 +35,13 @@ const StoreManagement = ({
   filterTerms,
   handleFilterChange,
   clearFilters,
-  sortConfig,
   requestSort,
   getSortIcon,
-  onStoreListRefresh, // Callback to refresh store list in AdminDashboard
+  onStoreListRefresh,
 }) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false); // State for edit modal visibility
-  const [selectedStoreId, setSelectedStoreId] = useState(null); // State to store ID of store being edited
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedStoreId, setSelectedStoreId] = useState(null);
 
   const getRatingStars = (rating) => {
     const numRating = parseFloat(rating) || 0;
@@ -72,7 +71,7 @@ const StoreManagement = ({
   const handleStoreCreated = () => {
     setShowCreateForm(false);
     if (onStoreListRefresh) {
-      onStoreListRefresh(); // Refresh list after creation
+      onStoreListRefresh();
     }
   };
 
@@ -88,11 +87,10 @@ const StoreManagement = ({
       )
     ) {
       try {
-        // Perform deletion via API
         await privateApi.delete(`/admin/stores/${storeId}`);
         alert("Store deleted successfully!");
         if (onStoreListRefresh) {
-          onStoreListRefresh(); // Refresh list after deletion
+          onStoreListRefresh();
         }
       } catch (err) {
         console.error(
@@ -110,13 +108,13 @@ const StoreManagement = ({
 
   const handleCloseEditModal = () => {
     setShowEditModal(false);
-    setSelectedStoreId(null); // Clear selected store ID
+    setSelectedStoreId(null);
   };
 
   const handleStoreUpdated = () => {
-    handleCloseEditModal(); // Close modal
+    handleCloseEditModal();
     if (onStoreListRefresh) {
-      onStoreListRefresh(); // Refresh list after update
+      onStoreListRefresh();
     }
   };
 
@@ -265,7 +263,6 @@ const StoreManagement = ({
                       Rating {getSortIcon("averageRating")}
                     </th>
                     <th className="border-0">Actions</th>{" "}
-                    {/* NEW: Actions Column */}
                   </tr>
                 </thead>
                 <tbody>
@@ -303,7 +300,7 @@ const StoreManagement = ({
                         <td className="align-middle">
                           {getRatingStars(store.averageRating)}
                         </td>
-                        {/* NEW: Action Buttons */}
+
                         <td className="align-middle">
                           <Button
                             variant="outline-primary"
@@ -328,8 +325,6 @@ const StoreManagement = ({
                   ) : (
                     <tr>
                       <td colSpan="6" className="text-center py-4 text-muted">
-                        {" "}
-                        {/* colSpan updated */}
                         <FaStore size="3em" className="mb-3 opacity-25" />
                         <br />
                         No stores found matching your criteria.

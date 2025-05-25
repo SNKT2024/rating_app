@@ -51,7 +51,7 @@ router.post("/login", validateLogin, async (req, res) => {
 
   try {
     const [results] = await db.execute(
-      "SELECT id, email, password, role FROM users WHERE email = ?",
+      "SELECT id, email, password, role, name FROM users WHERE email = ?",
       [email]
     );
 
@@ -66,7 +66,12 @@ router.post("/login", validateLogin, async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials." });
     }
 
-    const userData = { id: user.id, email: user.email, role: user.role };
+    const userData = {
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      name: user.name,
+    };
 
     const accessToken = jwt_token.generateAccessToken(userData);
     const refreshToken = jwt_token.generateRefreshToken(userData);
@@ -82,7 +87,12 @@ router.post("/login", validateLogin, async (req, res) => {
       message: "Login successful",
       accessToken,
       refreshToken,
-      user: { id: user.id, email: user.email, role: user.role },
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: user.name,
+      },
     });
   } catch (error) {
     console.error("Error during login:", error);

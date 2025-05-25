@@ -45,7 +45,7 @@ const EditUserModal = ({ show, onHide, userId, onUserUpdated }) => {
 
       setLoadingData(true);
       setError("");
-      setSuccess(""); // Clear any previous success message when opening for a new user
+      setSuccess("");
       try {
         const response = await privateApi.get(`/admin/users/${userId}`);
         const userData = response.data;
@@ -81,7 +81,7 @@ const EditUserModal = ({ show, onHide, userId, onUserUpdated }) => {
     e.preventDefault();
     setLoadingUpdate(true);
     setError("");
-    setSuccess(""); // Clear previous success on new submission attempt
+    setSuccess("");
 
     const dataToUpdate = {
       name: formData.name,
@@ -100,16 +100,11 @@ const EditUserModal = ({ show, onHide, userId, onUserUpdated }) => {
       );
       setSuccess(response.data.message || "User updated successfully!");
 
-      // --- FIX START: Delay modal close and parent notification ---
       setTimeout(() => {
         if (onUserUpdated) {
-          onUserUpdated(); // Notify parent to refresh list and close modal
+          onUserUpdated();
         }
-        // No need for onHide() here if onUserUpdated also triggers onHide from parent.
-        // If onUserUpdated only refreshes the list, then:
-        // onHide(); // Close modal after delay
-      }, 1500); // Keep success message visible for 1.5 seconds
-      // --- FIX END ---
+      }, 1000);
     } catch (err) {
       console.error("Error updating user:", err.response?.data || err.message);
       setError(
@@ -140,7 +135,6 @@ const EditUserModal = ({ show, onHide, userId, onUserUpdated }) => {
         ) : (
           <>
             {success && <Alert variant="success">{success}</Alert>}{" "}
-            {/* This will now stay longer */}
             <Form onSubmit={handleSubmit}>
               <Form.Group className="mb-3">
                 <Form.Label>Name</Form.Label>

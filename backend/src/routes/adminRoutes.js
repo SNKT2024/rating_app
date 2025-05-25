@@ -8,6 +8,7 @@ const { roleAuth } = require("../middleware/roleMiddleware");
 const { validateSignup } = require("../middleware/validationMiddleware");
 
 app.use(authMiddleware);
+
 // User Routes
 router.post(
   "/users",
@@ -16,17 +17,18 @@ router.post(
   roleAuth(["system_admin"]),
   adminUserController.createUser
 );
+router.get("/users", authMiddleware, adminUserController.getUsers);
+router.get("/users/:id", authMiddleware, adminUserController.getUserById);
+router.put("/users/:id", adminUserController.updateUser);
+router.delete("/users/:id", adminUserController.deleteUser);
 
+// Admin Dashboard Stats
 router.get(
   "/dashboard-stats",
   authMiddleware,
   adminUserController.getDashboardStats
 );
 
-router.get("/users", authMiddleware, adminUserController.getUsers);
-router.get("/users/:id", authMiddleware, adminUserController.getUserById);
-router.put("/users/:id", adminUserController.updateUser);
-router.delete("/users/:id", adminUserController.deleteUser);
 // Store Routes
 router.post("/stores", authMiddleware, adminStoreController.addStore);
 router.get("/stores", authMiddleware, adminStoreController.getStores);

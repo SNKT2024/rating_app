@@ -58,7 +58,7 @@ function App() {
             }
           />
         </Route>
-        {/* Change Password Page (accessible to any authenticated user) */}
+        {/* Change Password Page */}
         <Route
           path="/change-password"
           element={
@@ -67,7 +67,7 @@ function App() {
             </Layout>
           }
         />
-        {/* NEW: Store Owner Specific Protected Route */}
+        {/* Store Owner Specific Protected Route */}
         <Route
           path="/store-owner-dashboard"
           element={<ProtectedRoute allowedRoles={["store_owner"]} />}
@@ -83,7 +83,7 @@ function App() {
         </Route>
       </Route>
 
-      {/* Catch-all for undefined routes - redirects to login if not found */}
+      {/* redirects to login if not found */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );
