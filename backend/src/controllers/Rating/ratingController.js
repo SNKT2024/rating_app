@@ -11,7 +11,8 @@ exports.getStoresForNormalUser = async (req, res) => {
                 s.name AS storeName,
                 s.address AS storeAddress,
                 COALESCE(AVG(all_ratings.rating), 0) AS overallRating,
-                user_ratings.rating AS userSubmittedRating
+                user_ratings.rating AS userSubmittedRating,
+                user_ratings.id AS userRatingId -- This is correctly selected
             FROM
                 stores s
             LEFT JOIN
@@ -19,7 +20,7 @@ exports.getStoresForNormalUser = async (req, res) => {
             LEFT JOIN
                 ratings user_ratings ON s.id = user_ratings.store_id AND user_ratings.user_id = ?
             GROUP BY
-               s.id, s.name, s.address, user_ratings.rating, user_ratings.id
+                s.id, s.name, s.address, user_ratings.rating, user_ratings.id -- FIX: Ensure user_ratings.id is here
             ORDER BY
                 s.id ASC;
         `;
@@ -33,6 +34,7 @@ exports.getStoresForNormalUser = async (req, res) => {
       overallRating: parseFloat(store.overallRating).toFixed(1),
       userSubmittedRating:
         store.userSubmittedRating !== null ? store.userSubmittedRating : null,
+      userRatingId: store.userRatingId !== null ? store.userRatingId : null, // Ensure this is passed to frontend
     }));
 
     res.status(200).json(formattedStores);

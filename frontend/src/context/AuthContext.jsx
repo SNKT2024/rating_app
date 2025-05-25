@@ -5,7 +5,7 @@ import React, {
   useContext,
   useMemo,
 } from "react";
-import { publicApi, privateApi } from "../api/axios";
+import { publicApi } from "../api/axios";
 import { jwtDecode } from "jwt-decode";
 
 const AuthContext = createContext(null);

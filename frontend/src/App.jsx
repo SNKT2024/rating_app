@@ -3,9 +3,12 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Login from "./components/auth/Login";
 import Signup from "./components/auth/Signup";
 import Dashboard from "./pages/Dashboard";
+import AdminDashboard from "./pages/AdminDashboard";
+import StoresList from "./pages/StoreList";
+import ChangePasswordPage from "./pages/PasswordChange";
+import StoreOwnerDashboard from "./components/store_owner/StoreOwnderDashboard"; // NEW: Import StoreOwnerDashboard
 import ProtectedRoute from "./components/ProtectedRoutes";
 import Layout from "./components/Layout";
-import AdminDashboard from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -23,8 +26,9 @@ function App() {
               <Dashboard />
             </Layout>
           }
-        />
-
+        />{" "}
+        {/* General Dashboard */}
+        {/* Admin Specific Protected Route */}
         <Route
           path="/admin-dashboard"
           element={<ProtectedRoute allowedRoles={["system_admin"]} />}
@@ -38,8 +42,48 @@ function App() {
             }
           />
         </Route>
+        {/* Normal User & Store Owner Stores List */}
+        <Route
+          path="/stores"
+          element={
+            <ProtectedRoute allowedRoles={["normal_user", "store_owner"]} />
+          }
+        >
+          <Route
+            index
+            element={
+              <Layout>
+                <StoresList />
+              </Layout>
+            }
+          />
+        </Route>
+        {/* Change Password Page (accessible to any authenticated user) */}
+        <Route
+          path="/change-password"
+          element={
+            <Layout>
+              <ChangePasswordPage />
+            </Layout>
+          }
+        />
+        {/* NEW: Store Owner Specific Protected Route */}
+        <Route
+          path="/store-owner-dashboard"
+          element={<ProtectedRoute allowedRoles={["store_owner"]} />}
+        >
+          <Route
+            index
+            element={
+              <Layout>
+                <StoreOwnerDashboard />
+              </Layout>
+            }
+          />
+        </Route>
       </Route>
 
+      {/* Catch-all for undefined routes - redirects to login if not found */}
       <Route path="*" element={<Navigate to="/login" replace />} />
     </Routes>
   );

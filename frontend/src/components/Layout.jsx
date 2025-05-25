@@ -4,7 +4,8 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
 const Layout = ({ children }) => {
-  const { user, logout, isAuthenticated, isAdmin } = useAuth(); // Added isAdmin
+  const { user, logout, isAuthenticated, isAdmin, isStoreOwner, isNormalUser } =
+    useAuth();
   const navigate = useNavigate();
 
   const handleLogout = () => {
@@ -29,17 +30,20 @@ const Layout = ({ children }) => {
                       Admin Dashboard
                     </Nav.Link>
                   )}
-
-                  {user.role === "store_owner" && (
+                  {isStoreOwner && ( // Link for Store Owner Dashboard
                     <Nav.Link as={Link} to="/store-owner-dashboard">
                       My Store Dashboard
                     </Nav.Link>
                   )}
-                  {user.role === "normal_user" && (
+                  {isNormalUser && ( // Link for Normal User/Store Owner to view all stores
                     <Nav.Link as={Link} to="/stores">
                       View Stores
                     </Nav.Link>
                   )}
+                  {/* Change Password Link for any authenticated user */}
+                  <Nav.Link as={Link} to="/change-password">
+                    Change Password
+                  </Nav.Link>
                 </>
               )}
             </Nav>

@@ -1,35 +1,39 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react"; // Added useCallback
 import {
   Container,
-  Card,
-  Row,
-  Col,
   Alert,
   Spinner,
-  Table,
-  Form,
-  InputGroup,
-  Badge,
+  ButtonGroup,
   Button,
 } from "react-bootstrap";
 import { useAuth } from "../context/AuthContext";
 import { privateApi } from "../api/axios";
 import {
+  FaChartBar,
+  FaUsers,
+  FaStore,
   FaSort,
   FaSortUp,
   FaSortDown,
-  FaUsers,
-  FaStore,
-  FaStar,
 } from "react-icons/fa";
+
+// Import the new sub-components
+import AdminStats from "../components/admin/AdminStats";
+import UserManagement from "../components/admin/UserManagement";
+import StoreManagement from "../components/admin/StoreManagement";
 
 const AdminDashboard = () => {
   const { user, isAdmin, loading: authLoading } = useAuth();
+  const [activeTab, setActiveTab] = useState("overview");
+
+  // --- Dashboard Stats States ---
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalStores: 0,
     totalRatings: 0,
   });
+  const [loadingStats, setLoadingStats] = useState(true);
+  const [errorStats, setErrorStats] = useState("");
 
   // --- User List States ---
   const [users, setUsers] = useState([]);
@@ -44,6 +48,8 @@ const AdminDashboard = () => {
     key: null,
     direction: "asc",
   });
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [errorUsers, setErrorUsers] = useState("");
 
   // --- Store List States ---
   const [stores, setStores] = useState([]);
@@ -57,92 +63,88 @@ const AdminDashboard = () => {
     key: null,
     direction: "asc",
   });
-
-  // --- Loading and Error States ---
-  const [loadingStats, setLoadingStats] = useState(true);
-  const [loadingUsers, setLoadingUsers] = useState(true);
   const [loadingStores, setLoadingStores] = useState(true);
-  const [errorStats, setErrorStats] = useState("");
-  const [errorUsers, setErrorUsers] = useState("");
   const [errorStores, setErrorStores] = useState("");
 
-  // --- Fetch Dashboard Statistics ---
+  // --- Fetching Callbacks (Memoized to prevent unnecessary re-fetches) ---
+  const fetchDashboardStats = useCallback(async () => {
+    if (authLoading || !isAdmin) {
+      setLoadingStats(false);
+      return;
+    }
+    try {
+      setLoadingStats(true);
+      setErrorStats("");
+      const response = await privateApi.get("/admin/dashboard-stats");
+      setStats(response.data);
+    } catch (err) {
+      console.error("Error fetching admin dashboard stats:", err);
+      setErrorStats(
+        `Failed to load dashboard statistics: ${
+          err.response?.data?.message || err.message
+        }`
+      );
+    } finally {
+      setLoadingStats(false);
+    }
+  }, [authLoading, isAdmin]); // Dependencies for useCallback
+
+  const fetchUsers = useCallback(async () => {
+    if (authLoading || !isAdmin) {
+      setLoadingUsers(false);
+      return;
+    }
+    try {
+      setLoadingUsers(true);
+      setErrorUsers("");
+      const response = await privateApi.get("/admin/users");
+      setUsers(response.data);
+    } catch (err) {
+      console.error("Error fetching users:", err);
+      setErrorUsers(
+        `Failed to load user list: ${
+          err.response?.data?.message || err.message
+        }`
+      );
+    } finally {
+      setLoadingUsers(false);
+    }
+  }, [authLoading, isAdmin]); // Dependencies for useCallback
+
+  const fetchStores = useCallback(async () => {
+    if (authLoading || !isAdmin) {
+      setLoadingStores(false);
+      return;
+    }
+    try {
+      setLoadingStores(true);
+      setErrorStores("");
+      const response = await privateApi.get("/admin/stores");
+      setStores(response.data);
+    } catch (err) {
+      console.error("Error fetching stores:", err);
+      setErrorStores(
+        `Failed to load store list: ${
+          err.response?.data?.message || err.message
+        }`
+      );
+    } finally {
+      setLoadingStores(false);
+    }
+  }, [authLoading, isAdmin]); // Dependencies for useCallback
+
+  // --- Effects to trigger fetching ---
   useEffect(() => {
-    const fetchDashboardStats = async () => {
-      if (authLoading || !isAdmin) {
-        setLoadingStats(false);
-        return;
-      }
-      try {
-        setLoadingStats(true);
-        setErrorStats("");
-        const response = await privateApi.get("/admin/dashboard-stats");
-        setStats(response.data);
-      } catch (err) {
-        console.error("Error fetching admin dashboard stats:", err);
-        setErrorStats(
-          `Failed to load dashboard statistics: ${
-            err.response?.data?.message || err.message
-          }`
-        );
-      } finally {
-        setLoadingStats(false);
-      }
-    };
     fetchDashboardStats();
-  }, [authLoading, isAdmin]);
+  }, [fetchDashboardStats]);
 
-  // --- Fetch All Users ---
   useEffect(() => {
-    const fetchUsers = async () => {
-      if (authLoading || !isAdmin) {
-        setLoadingUsers(false);
-        return;
-      }
-      try {
-        setLoadingUsers(true);
-        setErrorUsers("");
-        const response = await privateApi.get("/admin/users");
-        setUsers(response.data);
-      } catch (err) {
-        console.error("Error fetching users:", err);
-        setErrorUsers(
-          `Failed to load user list: ${
-            err.response?.data?.message || err.message
-          }`
-        );
-      } finally {
-        setLoadingUsers(false);
-      }
-    };
     fetchUsers();
-  }, [authLoading, isAdmin]);
+  }, [fetchUsers]);
 
-  // --- Fetch All Stores ---
   useEffect(() => {
-    const fetchStores = async () => {
-      if (authLoading || !isAdmin) {
-        setLoadingStores(false);
-        return;
-      }
-      try {
-        setLoadingStores(true);
-        setErrorStores("");
-        const response = await privateApi.get("/admin/stores");
-        setStores(response.data);
-      } catch (err) {
-        console.error("Error fetching stores:", err);
-        setErrorStores(
-          `Failed to load store list: ${
-            err.response?.data?.message || err.message
-          }`
-        );
-      } finally {
-        setLoadingStores(false);
-      }
-    };
     fetchStores();
-  }, [authLoading, isAdmin]);
+  }, [fetchStores]);
 
   // --- Filtering and Sorting Logic for Users ---
   useEffect(() => {
@@ -230,7 +232,7 @@ const AdminDashboard = () => {
     setFilteredStores(currentStores);
   }, [stores, storeFilterTerms, storeSortConfig]);
 
-  // --- Filter Handlers ---
+  // --- Filter Handlers (Passed to Child Components) ---
   const handleUserFilterChange = (e) => {
     const { name, value } = e.target;
     setUserFilterTerms((prevTerms) => ({ ...prevTerms, [name]: value }));
@@ -241,7 +243,7 @@ const AdminDashboard = () => {
     setStoreFilterTerms((prevTerms) => ({ ...prevTerms, [name]: value }));
   };
 
-  // --- Clear Filter Handlers ---
+  // --- Clear Filter Handlers (Passed to Child Components) ---
   const clearUserFilters = () => {
     setUserFilterTerms({
       name: "",
@@ -259,7 +261,7 @@ const AdminDashboard = () => {
     });
   };
 
-  // --- Sorting Handlers ---
+  // --- Sorting Handlers (Passed to Child Components) ---
   const requestUserSort = (key) => {
     let direction = "asc";
     if (userSortConfig.key === key && userSortConfig.direction === "asc") {
@@ -296,44 +298,7 @@ const AdminDashboard = () => {
     return <FaSortDown className="ms-1 text-primary" />;
   };
 
-  // --- Role Badge Component ---
-  const getRoleBadge = (role) => {
-    const roleConfig = {
-      system_admin: { variant: "danger", text: "System Admin" },
-      store_owner: { variant: "warning", text: "Store Owner" },
-      normal_user: { variant: "secondary", text: "Normal User" },
-    };
-    const config = roleConfig[role] || { variant: "light", text: role };
-    return <Badge bg={config.variant}>{config.text}</Badge>;
-  };
-
-  // --- Rating Stars Component ---
-  const getRatingStars = (rating) => {
-    const numRating = parseFloat(rating) || 0;
-    const fullStars = Math.floor(numRating);
-    const hasHalfStar = numRating % 1 >= 0.5;
-
-    return (
-      <div className="d-flex align-items-center">
-        {[...Array(5)].map((_, i) => (
-          <FaStar
-            key={i}
-            className={
-              i < fullStars
-                ? "text-warning"
-                : i === fullStars && hasHalfStar
-                ? "text-warning opacity-50"
-                : "text-muted"
-            }
-            size="0.8em"
-          />
-        ))}
-        <span className="ms-1 small text-muted">({numRating.toFixed(1)})</span>
-      </div>
-    );
-  };
-
-  // --- Access Control and Loading States ---
+  // --- Access Control and Loading States for Main Dashboard ---
   if (authLoading) {
     return (
       <Container className="text-center mt-5">
@@ -369,379 +334,61 @@ const AdminDashboard = () => {
         </div>
       </div>
 
-      {/* Dashboard Statistics Section */}
-      <h4 className="mt-5">Overall Statistics</h4>
-      {loadingStats ? (
-        <div className="text-center py-5">
-          <Spinner animation="border" size="sm" variant="primary" />
-          <span className="ms-2">Loading statistics...</span>
-        </div>
-      ) : errorStats ? (
-        <Alert variant="danger" className="shadow-sm">
-          {errorStats}
-        </Alert>
-      ) : (
-        <Row className="g-4 mb-5">
-          <Col xl={4} md={6}>
-            <Card className="shadow-sm border-0 h-100 bg-primary text-white">
-              <Card.Body className="text-center">
-                <FaUsers size="3em" className="mb-3 opacity-75" />
-                <Card.Title className="h3">{stats.totalUsers}</Card.Title>
-                <Card.Text className="mb-0">Total Users</Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col xl={4} md={6}>
-            <Card className="shadow-sm border-0 h-100 bg-success text-white">
-              <Card.Body className="text-center">
-                <FaStore size="3em" className="mb-3 opacity-75" />
-                <Card.Title className="h3">{stats.totalStores}</Card.Title>
-                <Card.Text className="mb-0">Total Stores</Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-          <Col xl={4} md={6}>
-            <Card className="shadow-sm border-0 h-100 bg-info text-white">
-              <Card.Body className="text-center">
-                <FaStar size="3em" className="mb-3 opacity-75" />
-                <Card.Title className="h3">{stats.totalRatings}</Card.Title>
-                <Card.Text className="mb-0">Total Ratings</Card.Text>
-              </Card.Body>
-            </Card>
-          </Col>
-        </Row>
+      {/* Navigation Pills (Tabs) */}
+      <div className="my-4">
+        <ButtonGroup>
+          <Button
+            variant={activeTab === "overview" ? "primary" : "outline-primary"}
+            onClick={() => setActiveTab("overview")}
+          >
+            <FaChartBar className="me-1" /> Overview
+          </Button>
+          <Button
+            variant={activeTab === "users" ? "primary" : "outline-primary"}
+            onClick={() => setActiveTab("users")}
+          >
+            <FaUsers className="me-1" /> Users ({filteredUsers.length})
+          </Button>
+          <Button
+            variant={activeTab === "stores" ? "primary" : "outline-primary"}
+            onClick={() => setActiveTab("stores")}
+          >
+            <FaStore className="me-1" /> Stores ({filteredStores.length})
+          </Button>
+        </ButtonGroup>
+      </div>
+
+      {/* Conditional Rendering based on activeTab */}
+      {activeTab === "overview" && (
+        <AdminStats stats={stats} loading={loadingStats} error={errorStats} />
       )}
-
-      {/* User List Section */}
-      <h4 className="mt-5">User Management</h4>
-      {loadingUsers ? (
-        <div className="text-center py-5">
-          <Spinner animation="border" size="sm" variant="primary" />
-          <span className="ms-2">Loading users...</span>
-        </div>
-      ) : errorUsers ? (
-        <Alert variant="danger" className="shadow-sm">
-          {errorUsers}
-        </Alert>
-      ) : (
-        <>
-          {/* User Filters Card */}
-          <Card className="shadow-sm border-0 mb-4">
-            <Card.Header className="bg-light border-0">
-              <div className="d-flex justify-content-between align-items-center">
-                <h6 className="mb-0">Filter Users</h6>
-                <Button
-                  size="sm"
-                  variant="outline-secondary"
-                  onClick={clearUserFilters}
-                >
-                  Clear All
-                </Button>
-              </div>
-            </Card.Header>
-            <Card.Body>
-              <Row className="g-3">
-                <Col lg={3} md={6}>
-                  <InputGroup>
-                    <Form.Control
-                      type="text"
-                      placeholder="Search by name..."
-                      name="name"
-                      value={userFilterTerms.name}
-                      onChange={handleUserFilterChange}
-                    />
-                  </InputGroup>
-                </Col>
-                <Col lg={3} md={6}>
-                  <Form.Control
-                    type="text"
-                    placeholder="Filter by email..."
-                    name="email"
-                    value={userFilterTerms.email}
-                    onChange={handleUserFilterChange}
-                  />
-                </Col>
-                <Col lg={3} md={6}>
-                  <Form.Control
-                    type="text"
-                    placeholder="Filter by address..."
-                    name="address"
-                    value={userFilterTerms.address}
-                    onChange={handleUserFilterChange}
-                  />
-                </Col>
-                <Col lg={3} md={6}>
-                  <Form.Select
-                    name="role"
-                    value={userFilterTerms.role}
-                    onChange={handleUserFilterChange}
-                  >
-                    <option value="">All Roles</option>
-                    <option value="system_admin">System Admin</option>
-                    <option value="store_owner">Store Owner</option>
-                    <option value="normal_user">Normal User</option>
-                  </Form.Select>
-                </Col>
-              </Row>
-            </Card.Body>
-          </Card>
-
-          {/* Users Table */}
-          <Card className="shadow-sm border-0 mb-5">
-            <div className="table-responsive">
-              <Table className="mb-0 table-hover">
-                <thead className="table-light">
-                  <tr>
-                    <th
-                      onClick={() => requestUserSort("id")}
-                      style={{ cursor: "pointer" }}
-                      className="border-0"
-                    >
-                      ID {getUserSortIcon("id")}
-                    </th>
-                    <th
-                      onClick={() => requestUserSort("name")}
-                      style={{ cursor: "pointer" }}
-                      className="border-0"
-                    >
-                      Name {getUserSortIcon("name")}
-                    </th>
-                    <th
-                      onClick={() => requestUserSort("email")}
-                      style={{ cursor: "pointer" }}
-                      className="border-0"
-                    >
-                      Email {getUserSortIcon("email")}
-                    </th>
-                    <th
-                      onClick={() => requestUserSort("address")}
-                      style={{ cursor: "pointer" }}
-                      className="border-0"
-                    >
-                      Address {getUserSortIcon("address")}
-                    </th>
-                    <th
-                      onClick={() => requestUserSort("role")}
-                      style={{ cursor: "pointer" }}
-                      className="border-0"
-                    >
-                      Role {getUserSortIcon("role")}
-                    </th>
-                    <th
-                      onClick={() => requestUserSort("created_at")}
-                      style={{ cursor: "pointer" }}
-                      className="border-0"
-                    >
-                      Created At {getUserSortIcon("created_at")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.length > 0 ? (
-                    filteredUsers.map((user) => (
-                      <tr key={user.id}>
-                        <td className="align-middle">
-                          <Badge bg="light" text="dark">
-                            #{user.id}
-                          </Badge>
-                        </td>
-                        <td className="align-middle fw-medium">{user.name}</td>
-                        <td className="align-middle text-muted">
-                          {user.email}
-                        </td>
-                        <td className="align-middle">
-                          {user.address ? (
-                            <span
-                              className="text-truncate d-inline-block"
-                              style={{ maxWidth: "200px" }}
-                            >
-                              {user.address}
-                            </span>
-                          ) : (
-                            <span className="text-muted fst-italic">
-                              No address
-                            </span>
-                          )}
-                        </td>
-                        <td className="align-middle">
-                          {getRoleBadge(user.role)}
-                        </td>
-                        <td className="align-middle text-muted small">
-                          {new Date(user.created_at).toLocaleDateString()}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="6" className="text-center py-4 text-muted">
-                        <FaUsers size="3em" className="mb-3 opacity-25" />
-                        <br />
-                        No users found matching your criteria.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
-            </div>
-          </Card>
-        </>
+      {activeTab === "users" && (
+        <UserManagement
+          users={filteredUsers}
+          loading={loadingUsers}
+          error={errorUsers}
+          filterTerms={userFilterTerms}
+          handleFilterChange={handleUserFilterChange}
+          clearFilters={clearUserFilters}
+          sortConfig={userSortConfig}
+          requestSort={requestUserSort}
+          getSortIcon={getUserSortIcon}
+          onUserListRefresh={fetchUsers}
+        />
       )}
-
-      {/* Store List Section */}
-      <h4 className="mt-5">Store Management</h4>
-      {loadingStores ? (
-        <div className="text-center py-5">
-          <Spinner animation="border" size="sm" variant="success" />
-          <span className="ms-2">Loading stores...</span>
-        </div>
-      ) : errorStores ? (
-        <Alert variant="danger" className="shadow-sm">
-          {errorStores}
-        </Alert>
-      ) : (
-        <>
-          {/* Store Filters Card */}
-          <Card className="shadow-sm border-0 mb-4">
-            <Card.Header className="bg-light border-0">
-              <div className="d-flex justify-content-between align-items-center">
-                <h6 className="mb-0">Filter Stores</h6>
-                <Button
-                  size="sm"
-                  variant="outline-secondary"
-                  onClick={clearStoreFilters}
-                >
-                  Clear All
-                </Button>
-              </div>
-            </Card.Header>
-            <Card.Body>
-              <Row className="g-3">
-                <Col lg={4} md={6}>
-                  <InputGroup>
-                    <Form.Control
-                      type="text"
-                      placeholder="Search by store name..."
-                      name="name"
-                      value={storeFilterTerms.name}
-                      onChange={handleStoreFilterChange}
-                    />
-                  </InputGroup>
-                </Col>
-                <Col lg={4} md={6}>
-                  <Form.Control
-                    type="text"
-                    placeholder="Filter by email..."
-                    name="email"
-                    value={storeFilterTerms.email}
-                    onChange={handleStoreFilterChange}
-                  />
-                </Col>
-                <Col lg={4} md={6}>
-                  <Form.Control
-                    type="text"
-                    placeholder="Filter by address..."
-                    name="address"
-                    value={storeFilterTerms.address}
-                    onChange={handleStoreFilterChange}
-                  />
-                </Col>
-              </Row>
-            </Card.Body>
-          </Card>
-
-          {/* Stores Table */}
-          <Card className="shadow-sm border-0 mb-5">
-            <div className="table-responsive">
-              <Table className="mb-0 table-hover">
-                <thead className="table-light">
-                  <tr>
-                    <th
-                      onClick={() => requestStoreSort("id")}
-                      style={{ cursor: "pointer" }}
-                      className="border-0"
-                    >
-                      ID {getStoreSortIcon("id")}
-                    </th>
-                    <th
-                      onClick={() => requestStoreSort("name")}
-                      style={{ cursor: "pointer" }}
-                      className="border-0"
-                    >
-                      Store Name {getStoreSortIcon("name")}
-                    </th>
-                    <th
-                      onClick={() => requestStoreSort("email")}
-                      style={{ cursor: "pointer" }}
-                      className="border-0"
-                    >
-                      Email {getStoreSortIcon("email")}
-                    </th>
-                    <th
-                      onClick={() => requestStoreSort("address")}
-                      style={{ cursor: "pointer" }}
-                      className="border-0"
-                    >
-                      Address {getStoreSortIcon("address")}
-                    </th>
-                    <th
-                      onClick={() => requestStoreSort("averageRating")}
-                      style={{ cursor: "pointer" }}
-                      className="border-0"
-                    >
-                      Rating {getStoreSortIcon("averageRating")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredStores.length > 0 ? (
-                    filteredStores.map((store) => (
-                      <tr key={store.id}>
-                        <td className="align-middle">
-                          <Badge bg="light" text="dark">
-                            #{store.id}
-                          </Badge>
-                        </td>
-                        <td className="align-middle fw-medium">{store.name}</td>
-                        <td className="align-middle text-muted">
-                          {store.email || (
-                            <span className="text-muted fst-italic">
-                              No email
-                            </span>
-                          )}
-                        </td>
-                        <td className="align-middle">
-                          {store.address ? (
-                            <span
-                              className="text-truncate d-inline-block"
-                              style={{ maxWidth: "200px" }}
-                            >
-                              {store.address}
-                            </span>
-                          ) : (
-                            <span className="text-muted fst-italic">
-                              No address
-                            </span>
-                          )}
-                        </td>
-                        <td className="align-middle">
-                          {getRatingStars(store.averageRating)}
-                        </td>
-                      </tr>
-                    ))
-                  ) : (
-                    <tr>
-                      <td colSpan="5" className="text-center py-4 text-muted">
-                        <FaStore size="3em" className="mb-3 opacity-25" />
-                        <br />
-                        No stores found matching your criteria.
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </Table>
-            </div>
-          </Card>
-        </>
+      {activeTab === "stores" && (
+        <StoreManagement
+          stores={filteredStores}
+          loading={loadingStores}
+          error={errorStores}
+          filterTerms={storeFilterTerms}
+          handleFilterChange={handleStoreFilterChange}
+          clearFilters={clearStoreFilters}
+          sortConfig={storeSortConfig}
+          requestSort={requestStoreSort}
+          getSortIcon={getStoreSortIcon}
+          onStoreListRefresh={fetchStores}
+        />
       )}
     </Container>
   );
